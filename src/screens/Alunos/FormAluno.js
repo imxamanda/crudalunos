@@ -5,43 +5,61 @@ import Toast from 'react-native-toast-message'
 
 export default function FormAluno({ navigation, route }) {
 
-    const { acao } = route.params
+    const { acao, aluno: alunoAntigo } = route.params
+
     const [nome, setNome] = useState('')
-    const [idade, setIdade] = useState('')
     const [matricula, setMatricula] = useState('')
+    const [turno, setTurno] = useState('')
     const [curso, setCurso] = useState('')
+
     const [showMensagemErro, setShowMensagemErro] = useState(false)
+
+    useEffect(() => {
+        if (alunoAntigo) {
+            setNome(alunoAntigo.nome)
+            setMatricula(alunoAntigo.matricula)
+            setTurno(alunoAntigo.turno)
+            setCurso(alunoAntigo.curso)
+        }
+    }, [])
 
     function salvar() {
 
-        if (nome === '' || idade === '' || matricula === '' || curso === '') {
+        if (nome === '' || matricula === '' || turno === '' || curso === '') {
             setShowMensagemErro(true)
         } else {
             setShowMensagemErro(false)
 
-            const novaAluno = {
+            const alunoNovo = {
                 nome: nome,
-                idade: idade,
                 matricula: matricula,
+                turno: turno,
                 curso: curso
             }
 
-            acao(novaAluno)
+            if (alunoAntigo) {
+                acao(alunoAntigo, alunoNovo)
+            } else {
+                acao(alunoNovo)
+            }
+
+
+
             Toast.show({
                 type: 'success',
-                text1: 'Aluno salva com sucesso!'
+                text1: 'Pessoa salva com sucesso!'
             })
+
             navigation.goBack()
         }
 
     }
 
-
     return (
         <View style={styles.container}>
-
-            <Text variant='titleLarge' style={styles.title} >Adicionar Aluno</Text>
-
+            <Text variant='titleLarge' style={styles.title}>
+                {alunoAntigo ? 'Editar Aluno' : 'Adicionar Aluno'}
+            </Text>
             <View style={styles.inputContainer}>
                 <TextInput
                     style={styles.input}
@@ -50,43 +68,35 @@ export default function FormAluno({ navigation, route }) {
                     value={nome}
                     onChangeText={text => setNome(text)}
                 />
-
                 <TextInput
                     style={styles.input}
-                    label={'Idade'}
-                    mode='outlined'
-                    keyboardType='numeric'
-                    value={idade}
-                    onChangeText={text => setIdade(text)}
-                />
-
-                <TextInput
-                    style={styles.input}
-                    label={'Matricula'}
+                    label={'Matrícula'}
                     mode='outlined'
                     keyboardType='numeric'
                     value={matricula}
                     onChangeText={text => setMatricula(text)}
                 />
-
+                <TextInput
+                    style={styles.input}
+                    label={'Turno'}
+                    mode='outlined'
+                    value={turno}
+                    onChangeText={text => setTurno(text)}
+                />
                 <TextInput
                     style={styles.input}
                     label={'Curso'}
                     mode='outlined'
-                    keyboardType='numeric'
                     value={curso}
                     onChangeText={text => setCurso(text)}
                 />
-
-                {showMensagemErro &&
-                    <Text style={{ color: 'red', textAlign: 'center' }}>Preencha todos os campos!</Text>
-                }
-
-
+                {showMensagemErro && (
+                    <Text style={{ color: 'red', textAlign: 'center' }}>
+                        Preencha todos os campos!
+                    </Text>
+                )}
             </View>
-
             <View style={styles.buttonContainer}>
-
                 <Button
                     style={styles.button}
                     mode='contained-tonal'
@@ -94,7 +104,6 @@ export default function FormAluno({ navigation, route }) {
                 >
                     Voltar
                 </Button>
-
                 <Button
                     style={styles.button}
                     mode='contained'
@@ -102,15 +111,11 @@ export default function FormAluno({ navigation, route }) {
                 >
                     Salvar
                 </Button>
-
-
             </View>
-
-
-
         </View>
     )
 }
+
 
 const styles = StyleSheet.create({
     container: {
